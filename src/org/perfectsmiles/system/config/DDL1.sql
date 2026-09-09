@@ -3,65 +3,72 @@ create database sonrisa_perfecta_IN4AM;
 use sonrisa_perfecta_IN4AM;
 
 create table rol (
-    id_rol int primary key auto_increment,
+    id_rol int auto_increment,
     nombre_rol varchar(50) not null,
-    descripcion varchar(100)
+    descripcion varchar(100),
+    constraint pk_rol primary key (id_rol)
 );
 
 create table permiso (
-    id_permiso int primary key auto_increment,
+    id_permiso int auto_increment,
     nombre varchar(50) not null,
     descripcion varchar(50),
     modulo varchar(50),
-    estado boolean default true
+    estado boolean default true,
+    constraint pk_permiso primary key (id_permiso)
 );
 
 create table rol_permiso (
-    id_rol_permiso int primary key auto_increment,
+    id_rol_permiso int auto_increment,
     id_rol int not null,
     id_permiso int not null,
     estado boolean default true,
-    foreign key (id_rol) references rol(id_rol) on delete cascade,
-    foreign key (id_permiso) references permiso(id_permiso) on delete cascade
+    constraint pk_rol_permiso primary key (id_rol_permiso),
+    constraint fk_rol_permiso_rol foreign key (id_rol) references rol(id_rol) on delete cascade,
+    constraint fk_rol_permiso_permiso foreign key (id_permiso) references permiso(id_permiso) on delete cascade
 );
 
 create table user (
-    id_user int primary key auto_increment,
+    id_user int auto_increment,
     id_rol int not null,
-    user varchar(50) not null unique,
+    user varchar(50) not null,
     password_hash varchar(255) not null,
     complete_name varchar(100) not null,
     email varchar(100),
     telefono varchar(15),
     ultimo_acceso datetime,
     estado boolean default true,
-    foreign key (id_rol) references rol(id_rol)
+    constraint pk_user primary key (id_user),
+    constraint fk_user_rol foreign key (id_rol) references rol(id_rol),
+    constraint uq_user_username unique (user)
 );
 
 create table patient (
-    id_paciente int primary key auto_increment,
+    id_paciente int auto_increment,
     nombre varchar(100) not null,
     apellido varchar(100) not null,
     dpi varchar(20),
     telefono varchar(15),
     email varchar(100),
     direccion varchar(100),
-    estado boolean default true
+    estado boolean default true,
+    constraint pk_patient primary key (id_paciente)
 );
 
 create table tratamiento (
-    id_tratamiento int primary key auto_increment,
+    id_tratamiento int auto_increment,
     id_user int not null,
     codigo_interno varchar(20),
     nombre varchar(120) not null,
     costo_estandar decimal(10, 2),
     estado boolean default true,
-    descripcion text,
-    foreign key (id_user) references user(id_user)
+    descripcion varchar(500),
+    constraint pk_tratamiento primary key (id_tratamiento),
+    constraint fk_tratamiento_user foreign key (id_user) references user(id_user)
 );
 
 create table presupuesto (
-    id_presupuesto int primary key auto_increment,
+    id_presupuesto int auto_increment,
     id_paciente int not null,
     id_user int not null,
     fecha_emision date not null,
@@ -69,19 +76,21 @@ create table presupuesto (
     iva decimal(10, 2),
     total decimal(10, 2),
     estado boolean default true,
-    foreign key (id_paciente) references patient(id_paciente),
-    foreign key (id_user) references user(id_user)
+    constraint pk_presupuesto primary key (id_presupuesto),
+    constraint fk_presupuesto_patient foreign key (id_paciente) references patient(id_paciente),
+    constraint fk_presupuesto_user foreign key (id_user) references user(id_user)
 );
 
 create table presupuesto_detalle (
-    id_detalle_presupuesto int primary key auto_increment,
+    id_detalle_presupuesto int auto_increment,
     id_presupuesto int not null,
     id_tratamiento int not null,
     precio_unitario decimal(10, 2) not null,
     cantidad int not null,
     subtotal decimal(10, 2),
-    foreign key (id_presupuesto) references presupuesto(id_presupuesto) on delete cascade,
-    foreign key (id_tratamiento) references tratamiento(id_tratamiento)
+    constraint pk_presupuesto_detalle primary key (id_detalle_presupuesto),
+    constraint fk_detalle_presupuesto foreign key (id_presupuesto) references presupuesto(id_presupuesto) on delete cascade,
+    constraint fk_detalle_tratamiento foreign key (id_tratamiento) references tratamiento(id_tratamiento)
 );
 
 
